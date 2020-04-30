@@ -1,7 +1,7 @@
 #Makefile for Assignment 4
 #Alexander Zimmermann ZMMALE001
 
-CC=g++-8
+CC=g++
 
 CCFLAGS = -std=c++17
 LDFLAGS = -lm -lstdc++fs
@@ -15,7 +15,7 @@ $(PROG) : $(OBJ)
 	$(CC) $(CCFLAGS) $(SRC) -o clusterer
 	
 .cpp.o:
-	$(CC) $(CCFLAGS) -c $< -o $@ $(LDFLAGS)
+	$(CC) $(CCFLAGS) -c $< -o $(LDFLAGS)
 
 depend:
 	$(CC) -M $(SRC) > incl.defs
