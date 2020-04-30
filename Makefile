@@ -2,8 +2,8 @@
 #Alexander Zimmermann ZMMALE001
 
 CC=g++
-CCFLAGS=-std=c++17
 LDFLAGS = -lm -lstdc++fs
+CCFLAGS = -std=c++17 $(LDFLAGS)
 
 SRC = $(wildcard src/*.cpp *.h)
 OBJ = $(SRC:.cpp=.o)
