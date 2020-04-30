@@ -1,9 +1,10 @@
 #Makefile for Assignment 4
 #Alexander Zimmermann ZMMALE001
 
-CC=g++
+CC=g++-8
+
+CCFLAGS = -std=c++17
 LDFLAGS = -lm -lstdc++fs
-CCFLAGS = -std=c++17 $(LDFLAGS)
 
 SRC = $(wildcard src/*.cpp *.h)
 OBJ = $(SRC:.cpp=.o)
