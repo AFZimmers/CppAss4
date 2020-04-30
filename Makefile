@@ -4,7 +4,7 @@
 CC=g++
 
 CCFLAGS = -std=c++17
-LDFLAGS = -lm -lstdc++fs
+LDFLAGS = -lstdc++fs
 
 SRC = $(wildcard src/*.cpp *.h)
 OBJ = $(SRC:.cpp=.o)
