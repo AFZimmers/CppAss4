@@ -12,10 +12,7 @@ OBJ = $(SRC:.cpp=.o)
 PROG = clusterer
 
 $(PROG) : $(OBJ)
-	$(CC) $(CCFLAGS) $(SRC) -o clusterer
-	
-.cpp.o:
-	$(CC) $(CCFLAGS) -c $< -o $(LDFLAGS)
+	$(CC) $(CCFLAGS) $(SRC) $(LDFLAGS) -o clusterer
 
 depend:
 	$(CC) -M $(SRC) > incl.defs
