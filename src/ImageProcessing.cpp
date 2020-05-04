@@ -7,6 +7,7 @@
 #include "Image.h"
 #include <experimental/filesystem>
 #include <iomanip>
+#include <cmath>
 
 namespace fs = std::experimental::filesystem;
 using ZMMALE001::ImageProcessing;
@@ -14,7 +15,7 @@ using ZMMALE001::Image;
 using ZMMALE001::RGB;
 using ZMMALE001::clustering;
 
-ImageProcessing::ImageProcessing(string base, int clusters, int bin , bool colour) : baseName(base), numClusters(clusters), binSize(bin), colour(colour) {
+ImageProcessing::ImageProcessing(string base, int clusters, int bin , bool colour , bool otherMethod) : baseName(base), numClusters(clusters), binSize(bin), colour(colour) , otherMethod(otherMethod) {
 
     // load all the images from <basename> folder and add to this.images
     readImages(base);
@@ -85,21 +86,54 @@ Image ImageProcessing::readImage(string baseName,string fname){
     }
     header_fs.close();
 
+
+    if(otherMethod==true){
+
+//second derivative of Gaussian
+
+        for (int y = -mkside; y <=mkside ; ++y) {
+            for (int x = -mkside; x <=mkside ; ++x) {
+                xSqrtDervMask[y+mkside][x+mkside]=(pow(x,2),-pow(segma,2))*exp(-(pow(x,2)+pow(y,2))/(2*pow(segma,2)))*1.0/pow(segma,4);
+            }
+        }
+        for (int y = -mkside; y <=mkside ; ++y) {
+            for (int x = -mkside; x <=mkside ; ++x) {
+                ySqrtDervMask[y+mkside][x+mkside]=(pow(y,2),-pow(segma,2))*exp(-(pow(x,2)+pow(y,2))/(2*pow(segma,2)))*1.0/pow(segma,4);
+            }
+        }
+        for (int y = -mkside; y <=mkside ; ++y) {
+            for (int x = -mkside; x <=mkside ; ++x) {
+                xyDervMask[y+mkside][x+mkside]=(x*y)*exp(-(pow(x,2)+pow(y,2))/(2*pow(segma,2)))*1.0/pow(segma,4);
+            }
+        }
+
+        //std:: cout<< mksize;
+        calRvalue(temp);
+        double globalMaxR = GlobalMaxR(temp);
+        NonMaximalSuppression(globalMaxR,temp);
+        //std:: cout<< mksize;
+    }
+int count=0;
     //// DEBUG CODE prints out the images
-//    for (unsigned int y = 0; y < temp.getHeight(); ++y) {
-//        for (unsigned int x = 0; x < temp.getWidth(); ++x) {
-//                RGB &ref_colour = temp.get(x, y);
-//                //std::cout << "RGB {" <<std::setw (3) <<(int) ref_colour.red << ", " <<std::setw (3) << (int) ref_colour.green << ", "<<std::setw (3) << (int) ref_colour.blue << "}";
-//                //std::cout<< std::setw (3) << (int)ref_colour.grey<<" ";
+    for (unsigned int y = 0; y < temp.getHeight(); ++y) {
+        for (unsigned int x = 0; x < temp.getWidth(); ++x) {
+                RGB &ref_colour = temp.get(x, y);
+                //std::cout << std::setw(3) << ref_colour.corner << " ";
+                //std::cout << "RGB {" <<std::setw (3) <<(int) ref_colour.red << ", " <<std::setw (3) << (int) ref_colour.green << ", "<<std::setw (3) << (int) ref_colour.blue << "}";
+                if(ref_colour.corner== true) {
+                    std::cout << std::setw(3) << "C ";
+                    //count++;
+                } else{std::cout<< std::setw (3) << (int)ref_colour.grey<<" ";}
 //                if((int)ref_colour.grey>100)
 //                {
 //                    std::cout<< std::setw (3) << (int)ref_colour.grey;
 //                } else{
 //                    std::cout<<std::setw(3)<<" ";
 //                }
-//        }
-//        std::cout<<std::endl;
-//    }
+        }
+        std::cout<<std::endl;
+    }
+    std::cout<<count;
 
     std::cout<<std::endl;
     return temp;// todo why return this
@@ -122,5 +156,63 @@ void ZMMALE001::ImageProcessing::classify() {
 
 int ZMMALE001::ImageProcessing::getNumClusters() const {
     return numClusters;
+}
+
+void ZMMALE001::ImageProcessing::calRvalue(Image &temp) {
+    float k= 0.05;
+    for (int j = mkside; j < temp.getHeight()-mkside; ++j) {
+        for (int i = mkside; i < temp.getWidth()-mkside; ++i) {
+            double xx=0.0, yy=0.0,xy=0.0;
+            for (int dy = -mkside; dy <=mkside ; ++dy) {
+                for (int dx = -mkside; dx <=mkside ; ++dx) {
+                    xx+= (xSqrtDervMask[dy + mkside][dx + mkside]) * temp.get(i + dx, j + dy).grey;
+                    yy+= (ySqrtDervMask[dy + mkside][dx + mkside]) *temp.get(i+dx,j+dy).grey;
+                    xy+= (xyDervMask[dy + mkside][dx + mkside]) *temp.get(i+dx,j+dy).grey;
+                }
+            }
+            //R=detM -k(traceM)^2
+            double trace= xx+yy;
+            double det = (xx*yy)-(xy*xy);
+            double x = det - k * (pow(trace, 2));
+            temp.get(i,j).R=x;
+            //std::cout<<x<< " ";
+        }
+    }
+}
+
+void ZMMALE001::ImageProcessing::NonMaximalSuppression(float globalMaxRvalue, Image &temp) {
+    int gap =4;
+    for (int j = gap; j < temp.getHeight()-gap; ++j) {
+        for (int i = gap; i < temp.getWidth() - gap; ++i) {
+            int maxi=i, maxj =j;
+            float MaxR=-1000000000;
+            for (int dy = -gap; dy <=gap ; ++dy) {
+                for (int dx = -gap; dx <=gap ; ++dx) {
+                    if(temp.get(i+dx,j+dy).R>MaxR){
+                        MaxR=temp.get(i+dx,j+dy).R;
+                        maxi=i+dx;
+                        maxj=j+dy;
+                    }
+                }
+            }
+            if(maxi==i && maxj ==j && MaxR>0.01*globalMaxRvalue){
+                temp.get(i,j).corner=true;
+            }
+        }
+    }
+
+
+}
+
+float ZMMALE001::ImageProcessing::GlobalMaxR( Image &temp) {
+    float Max =-100000000;
+    for (int j = mkside; j < temp.getHeight()-mkside; ++j) {
+        for (int i = mkside; i < temp.getWidth() - mkside; ++i) {
+            if(temp.get(i,j).R>Max){
+                Max=temp.get(i,j).R;
+            }
+        }
+    }
+    return Max;
 }
 

@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
             i++;
         }
 
-        ImageProcessing driver(string(baseName), clusters, bin ,colour);
+        ImageProcessing driver(string(baseName), clusters, bin ,colour ,otherMethod);
 
         // processes and print histogram (DEBUG)
         driver.processAllHist();

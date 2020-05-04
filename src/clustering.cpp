@@ -262,9 +262,9 @@ if(colour==false) {
                 }
             }
             images.at(i).setClusterValue(temp_cluster.getClusterNumber());
-            newClusterMean(colour,images);
+            //newClusterMean(colour,images);
         }
-
+        newClusterMean(colour,images);
     } // end of k-means iteration
 }
 

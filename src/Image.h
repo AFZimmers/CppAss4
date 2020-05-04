@@ -18,8 +18,10 @@ namespace ZMMALE001{
         unsigned char green;
         unsigned char blue;
         unsigned char grey;
+        double R;
+        bool corner;
 
-        RGB(): red(0),blue(0),green(0),grey(0){};
+        RGB(): red(0),blue(0),green(0),grey(0),R(0),corner(false){};
 
     };
 
