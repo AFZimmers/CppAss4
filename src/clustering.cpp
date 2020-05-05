@@ -208,12 +208,14 @@ void ZMMALE001::clustering::kmean(bool colour,vector<Image> &images) {
 //     5. for each cluster j = 1..k
 //            - new centroid = mean of all points assigned to that cluster
 //     6. End
+
+// if colour not chosen
 if(colour==false) {
-    int not_yet = 1000;
 
-    while (not_yet) {
-
-        not_yet--;
+    //stopping condition if assignmentOfPoints =0 for the iteration then stop
+    int assignmentOfPoints=-1;
+    while (assignmentOfPoints!=0) {
+        assignmentOfPoints=0;
 
         // ----- step 4
 
@@ -232,17 +234,22 @@ if(colour==false) {
                     temp_cluster = clusters.at(j);
                 }
             }
-            images.at(i).setClusterValue(temp_cluster.getClusterNumber());
-//            newClusterMean(colour,images);
+
+            if(images.at(i).clusterValue!=temp_cluster.getClusterNumber()){
+                assignmentOfPoints++;
+                images.at(i).setClusterValue(temp_cluster.getClusterNumber());
+            }
         }
         newClusterMean(colour,images);
+        //outputting the amount of images that have been reallocated
+       //std::cout<< assignmentOfPoints<<std::endl;         //uncomment if you want to see amount of images added per iteration
     } // end of k-means iteration
 } else{
-    int not_yet = 100;
-
-    while (not_yet) {
-
-        not_yet--;
+    // if colour chosen
+    //stopping condition if assignmentOfPoints =0 for the iteration then stop
+    int assignmentOfPoints=-1;
+    while (assignmentOfPoints!=0) {
+        assignmentOfPoints=0;
 
         // ----- step 4
 
@@ -261,15 +268,20 @@ if(colour==false) {
                     temp_cluster = clusters.at(j);
                 }
             }
-            images.at(i).setClusterValue(temp_cluster.getClusterNumber());
-            //newClusterMean(colour,images);
+            if(images.at(i).clusterValue!=temp_cluster.getClusterNumber()){
+                assignmentOfPoints++;
+                images.at(i).setClusterValue(temp_cluster.getClusterNumber());
+            }
         }
         newClusterMean(colour,images);
+        //outputting the amount of images that have been reallocated
+        //std::cout<< assignmentOfPoints<<std::endl;        //uncomment if you want to see amount of images added per iteration
     } // end of k-means iteration
 }
 
 
 }
+
 void clustering:: newClusterMean(bool colour,vector<Image> &images){
     if(colour==false) {
         vector<int> sum(images.at(0).hist_grey_bins_count.size(), 0);
@@ -277,7 +289,6 @@ void clustering:: newClusterMean(bool colour,vector<Image> &images){
 
         for (int c = 0; c < clusters.size(); c++) {
             int count_images_in_cluster = 0;
-            sum = clusters.at(c).centroid_hist_stored;
             // find all images with centroid = c
             for (int i = 0; i < images.size(); i++) {
 
@@ -291,6 +302,7 @@ void clustering:: newClusterMean(bool colour,vector<Image> &images){
                 vector<int> avg = vector_divide(sum, count_images_in_cluster); // divide vector by the count.
                 clusters.at(c).centroid_hist_stored = avg;
             }
+            std::fill(sum.begin(), sum.end(), 0);
         }
     }else{
         vector<int> sum(images.at(0).hist_RBG_counts.size(), 0);
@@ -298,7 +310,6 @@ void clustering:: newClusterMean(bool colour,vector<Image> &images){
 
         for (int c = 0; c < clusters.size(); c++) {
             int count_images_in_cluster = 0;
-            sum = clusters.at(c).centroid_hist_stored;
             // find all images with centroid = c
             for (int i = 0; i < images.size(); i++) {
 
@@ -312,6 +323,7 @@ void clustering:: newClusterMean(bool colour,vector<Image> &images){
                 vector<int> avg = vector_divide(sum, count_images_in_cluster); // divide vector by the count.
                 clusters.at(c).centroid_hist_stored = avg;
             }
+            std::fill(sum.begin(), sum.end(), 0);
         }
     }
 }
@@ -332,7 +344,7 @@ vector<int> clustering::vector_divide(const std::vector<int> &a, int b) {
     vector<int> div(a.size(), 0);
 
     for (int i = 0; i <a.size(); ++i) {
-        div[i] = int(a[i] / (b+1));
+        div[i] = int(a[i] / (b));
     }
 
     return div;

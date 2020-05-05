@@ -27,12 +27,12 @@ friend class clustering;
         Image readImage(string baseName, string fname);
         bool readImages(string baseName);
 
-        int mksize=15;
+        int mksize=2;
         int mkside=(mksize-1)/2;
         int segma=2;
-        float xSqrtDervMask [15][15];
-        float ySqrtDervMask [15][15];
-        float xyDervMask [15][15];
+        float xSqrtDervMask [2][2];
+        float ySqrtDervMask [2][2];
+        float xyDervMask [2][2];
 
 
     public:

@@ -50,8 +50,9 @@ int main(int argc, char *argv[]) {
         driver.processAllHist();
 
         // classify the images
-        driver.classify();
-
+        if(otherMethod==false) {
+            driver.classify();
+        }
         //Out put of clusters
         if(output=="noOutputLoctation"){
             std::cout<<driver;

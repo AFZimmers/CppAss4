@@ -24,7 +24,6 @@ ImageProcessing::ImageProcessing(string base, int clusters, int bin , bool colou
 // read all images from a given folder
 bool ImageProcessing::readImages(std::string baseName) {
     std::cout<<"start reading in images"<<std::endl;
-    // https://www.bfilipek.com/2019/04/dir-iterate.html#using-c17
     // iterate through all images in basename folder
     for (const auto& entry : fs::directory_iterator(baseName)) {
             const auto filenameStr = entry.path().filename().string();
@@ -46,7 +45,7 @@ bool ImageProcessing::readImages(std::string baseName) {
 // read a single image when given a filepath and return an image variable
 Image ImageProcessing::readImage(string baseName,string fname){
 
-    std::cout<<"read in new image :"<< fname << std::endl;
+    //std::cout<<"read in new image :"<< fname << std::endl;
 
     // read header
     std::ifstream header_fs(baseName+"/"+fname);
@@ -86,8 +85,19 @@ Image ImageProcessing::readImage(string baseName,string fname){
     }
     header_fs.close();
 
-
+/// implementation of harris starts
     if(otherMethod==true){
+//is to enhance pixels in a particular range for corners
+        for (unsigned int y = 0; y < temp.getHeight(); ++y) {
+            for (unsigned int x = 0; x < temp.getWidth(); ++x) {
+                if(temp.get(x, y).grey>70){
+                    temp.get(x, y).grey=255;
+                } else{
+                    temp.get(x, y).grey=0;
+                }
+
+            }
+        }
 
 //second derivative of Gaussian
 
@@ -112,40 +122,53 @@ Image ImageProcessing::readImage(string baseName,string fname){
         double globalMaxR = GlobalMaxR(temp);
         NonMaximalSuppression(globalMaxR,temp);
         //std:: cout<< mksize;
-    }
-int count=0;
-    //// DEBUG CODE prints out the images
-    for (unsigned int y = 0; y < temp.getHeight(); ++y) {
-        for (unsigned int x = 0; x < temp.getWidth(); ++x) {
+    }//end of harris
+
+//    int cx=16,cy=16;
+    int count=0;
+//    double Dvalue=0;
+//    vector<double> v;
+    //// DEBUG CODE prints out the images of the coners or if make false can make it print out the other images
+    if(otherMethod==true) {
+        for (unsigned int y = 0; y < temp.getHeight(); ++y) {
+            for (unsigned int x = 0; x < temp.getWidth(); ++x) {
                 RGB &ref_colour = temp.get(x, y);
                 //std::cout << std::setw(3) << ref_colour.corner << " ";
                 //std::cout << "RGB {" <<std::setw (3) <<(int) ref_colour.red << ", " <<std::setw (3) << (int) ref_colour.green << ", "<<std::setw (3) << (int) ref_colour.blue << "}";
-                if(ref_colour.corner== true) {
+                if (ref_colour.corner == true) {
                     std::cout << std::setw(3) << "C ";
-                    //count++;
-                } else{std::cout<< std::setw (3) << (int)ref_colour.grey<<" ";}
+
+//                   double dis=sqrt(pow((cx-x),2)+pow((cy-y),2));
+//                   v.push_back(dis);
+//                   Dvalue+= dis;
+                    count++;
+                } else { std::cout << std::setw(3) << (int) ref_colour.grey << " "; }
 //                if((int)ref_colour.grey>100)
 //                {
 //                    std::cout<< std::setw (3) << (int)ref_colour.grey;
 //                } else{
 //                    std::cout<<std::setw(3)<<" ";
 //                }
+            }
+            std::cout << std::endl;
         }
-        std::cout<<std::endl;
+        if (count == 0) {
+            std::cout << -1;
+        } else {
+            std::cout << (count);
+        }
     }
-    std::cout<<count;
-
-    std::cout<<std::endl;
-    return temp;// todo why return this
+   // std::cout<<std::endl;
+    return temp;
 
 }
 
 void ZMMALE001::ImageProcessing::processAllHist() {
 
     for(int i=0;i<images.size();i++){
-        std::cout<<"Image : "<< images.at(i).getFilename()<<std::endl;
+        //std::cout<<"Image : "<< images.at(i).getFilename()<<std::endl;
         images.at(i).processHist(binSize,colour);
-        std::cout<< std::endl;
+        //std::cout<< std::endl;
     }
 }
 
@@ -181,7 +204,7 @@ void ZMMALE001::ImageProcessing::calRvalue(Image &temp) {
 }
 
 void ZMMALE001::ImageProcessing::NonMaximalSuppression(float globalMaxRvalue, Image &temp) {
-    int gap =4;
+    int gap =2;
     for (int j = gap; j < temp.getHeight()-gap; ++j) {
         for (int i = gap; i < temp.getWidth() - gap; ++i) {
             int maxi=i, maxj =j;
@@ -213,6 +236,7 @@ float ZMMALE001::ImageProcessing::GlobalMaxR( Image &temp) {
             }
         }
     }
+
     return Max;
 }
 

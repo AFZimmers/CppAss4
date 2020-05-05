@@ -15,7 +15,7 @@ centroid::centroid(const int binSize,int i, vector<int> image) {
     clusterNumber =i;
     sizeForSeeding=-1;
     imageNumberSeeding=-1;
-
+// if i wanted to generate a random histogram, ended up being a bad centroid
 //    int num_bins = ceil(255 / binSize);
 //    for (int i = 0; i < num_bins; ++i) {
 //        double v = rand()%600;
@@ -23,7 +23,6 @@ centroid::centroid(const int binSize,int i, vector<int> image) {
 //
 //    }
     centroid_hist_stored=image;
-
 
 }
 
