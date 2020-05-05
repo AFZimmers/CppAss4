@@ -49,10 +49,12 @@ int main(int argc, char *argv[]) {
         // processes and print histogram (DEBUG)
         driver.processAllHist();
 
-        // classify the images
-        if(otherMethod==false) {
-            driver.classify();
+        // kills if otherMethod is run
+        if(otherMethod==true) {
+            exit(0);
         }
+        // classify the images
+        driver.classify();
         //Out put of clusters
         if(output=="noOutputLoctation"){
             std::cout<<driver;
