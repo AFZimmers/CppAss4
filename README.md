@@ -3,12 +3,12 @@
 Run make in the home directory to compile the huffman code program.
 Image Clustering program is run using the syntax's:
 * for just a cout out put of cluster with grey histograms being used:
-`./ clusterer Gradient_Numbers_PPMS -k 10 -bin 25`
+`./clusterer Gradient_Numbers_PPMS -k 10 -bin 25`
 * Output of cluster with grey histograms being used to a file(you can name the file anything as it will be created for you so if -o newfile.txt it will create newfile.txt and output to that file):
-`./ clusterer Gradient_Numbers_PPMS -o output.txt -k 10 -bin 25`
+`./clusterer Gradient_Numbers_PPMS -o output.txt -k 10 -bin 25`
 * if wanting to use colour histograms, which can have the option as above to have the -o part or not:
-`./ clusterer Gradient_Numbers_PPMS -k 10 -bin 25 -colour`
-`./ clusterer Gradient_Numbers_PPMS -o output.txt -k 10 -bin 25 -colour`
+`./clusterer Gradient_Numbers_PPMS -k 10 -bin 25 -colour`
+`./clusterer Gradient_Numbers_PPMS -o output.txt -k 10 -bin 25 -colour`
 * if no -k value or -bin value are used it will default them to 10 and 1 respectively.
 
 ## Explanation
